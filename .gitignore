@@ -1,0 +1,20 @@
+*.o
+*.lo
+
+# from github for autoconf
+autom4te.cache
+./autoscan.log
+./autoscan-*.log
+./aclocal.m4
+./compile
+./config.guess
+./config.h.in
+./config.sub
+./configure
+./configure.scan
+./depcomp
+./install-sh
+./missing
+./stamp-h1
+
+build.vc12
