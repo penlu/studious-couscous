@@ -536,7 +536,7 @@ AS_IF([test "x$enable_gpu" = "xyes" ],
     dnl Check which GPU architecture nvcc know
     NVCCTEST="$NVCC -c conftest.cu -o conftest.o $NVCCFLAGS --dryrun"
     GPU_ARCH=""
-    m4_foreach_w([compute_compatibility], [20 21 30 32 35 37 50 52 53],
+    m4_foreach_w([compute_compatibility], [20 21 30 32 35 37 50 52 53 61],
       [
         testcc=compute_compatibility
         AC_MSG_CHECKING([that nvcc know compute capability $testcc])
@@ -557,14 +557,14 @@ AS_IF([test "x$enable_gpu" = "xyes" ],
           ])
       ] )
     # Use JIT compilation of GPU code for forward compatibility
-    GPU_ARCH="--generate-code arch=compute_20,code=compute_20 $GPU_ARCH"
+    GPU_ARCH="--generate-code arch=compute_61,code=compute_61 $GPU_ARCH"
 
     dnl check that nvcc know ptx instruction madc
     echo "__global__ void test (int *a, int b) { 
           asm(\"mad.lo.cc.u32 %0, %0, %1, %1;\": 
           \"+r\"(*a) : \"r\"(b));} " > conftest.cu
     AC_MSG_CHECKING([if nvcc know ptx instruction madc])
-    $NVCC -c conftest.cu -o conftest.o $NVCCFLAGS --generate-code arch=compute_20,code=compute_20 > /dev/null 2>&1
+    $NVCC -c conftest.cu -o conftest.o $NVCCFLAGS --generate-code arch=compute_61,code=compute_61 > /dev/null 2>&1
     AS_IF([test "$?" -eq "0"], 
       [
         AC_MSG_RESULT([yes])

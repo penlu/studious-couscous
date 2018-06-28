@@ -15731,15 +15731,41 @@ $as_echo "no" >&6; }
 
 fi
 
+        testcc=61
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking that nvcc know compute capability $testcc" >&5
+$as_echo_n "checking that nvcc know compute capability $testcc... " >&6; }
+        if test "$testcc" -eq "21"; then :
+
+            NEW="--generate-code arch=compute_20,code=sm_21"
+
+else
+
+            NEW="--generate-code arch=compute_$testcc,code=sm_$testcc"
+
+fi
+        $NVCCTEST $NEW > /dev/null 2>&1
+        if test "$?" -eq "0"; then :
+
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+            GPU_ARCH="$GPU_ARCH $NEW"
+
+else
+
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+fi
+
     # Use JIT compilation of GPU code for forward compatibility
-    GPU_ARCH="--generate-code arch=compute_20,code=compute_20 $GPU_ARCH"
+    GPU_ARCH="--generate-code arch=compute_61,code=compute_61 $GPU_ARCH"
 
         echo "__global__ void test (int *a, int b) {
           asm(\"mad.lo.cc.u32 %0, %0, %1, %1;\":
           \"+r\"(*a) : \"r\"(b));} " > conftest.cu
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking if nvcc know ptx instruction madc" >&5
 $as_echo_n "checking if nvcc know ptx instruction madc... " >&6; }
-    $NVCC -c conftest.cu -o conftest.o $NVCCFLAGS --generate-code arch=compute_20,code=compute_20 > /dev/null 2>&1
+    $NVCC -c conftest.cu -o conftest.o $NVCCFLAGS --generate-code arch=compute_61,code=compute_61 > /dev/null 2>&1
     if test "$?" -eq "0"; then :
 
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
