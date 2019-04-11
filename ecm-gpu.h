@@ -31,7 +31,7 @@ typedef digit_t VOL biguint_t[ECM_GPU_NB_DIGITS];
 typedef carry_t VOL bigint_t[ECM_GPU_NB_DIGITS];
 
 /* Uncomment the next line to print the number of remaining iterations. */
-//#define PRINT_REMAINING_ITER
+#define PRINT_REMAINING_ITER
 #endif
 
 #ifndef _DO_NOT_INCLUDE_ECM_IMPL_H

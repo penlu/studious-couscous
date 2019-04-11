@@ -211,7 +211,8 @@ float cuda_Main (biguint_t h_N, biguint_t h_3N, biguint_t h_M, digit_t h_invN,
   cudaMemcpyHtoD (d_zB, h_z2array, array_size);
 
 #ifdef PRINT_REMAINING_ITER
-      unsigned int jmod = 100000000;
+      unsigned int jmod = 100000;
+      printf("printing iters every %lu\n", jmod);
 #endif
 
   /* Double-and-add loop: it calls the GPU for each bits of s */
@@ -243,10 +244,10 @@ float cuda_Main (biguint_t h_N, biguint_t h_3N, biguint_t h_M, digit_t h_invN,
     }
 
 #ifdef PRINT_REMAINING_ITER
-    if (j < 100000000) jmod = 10000000;
+    /*if (j < 100000000) jmod = 10000000;
     if (j < 10000000)  jmod =  1000000;
     if (j < 1000000)   jmod =   100000;
-    if (j < 100000)    jmod =    10000;
+    if (j < 100000)    jmod =    10000;*/
     if (j % jmod == 0)
       printf("%lu iterations to go\n", j);
 #endif
