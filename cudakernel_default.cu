@@ -5,19 +5,19 @@
 __device__ void Cuda_Fully_Normalize (biguint_t A, bigint_t cy)
 {
   carry_t cytemp;
-  unsigned int thm1;
+  unsigned int thp1;
 
   while(__any(cy[threadIdx.x])!=0)
   {
-    thm1 = (threadIdx.x - 1) % ECM_GPU_NB_DIGITS;
-    cytemp = cy[thm1];
+    thp1 = (threadIdx.x + 1) % ECM_GPU_NB_DIGITS;
+    cytemp = cy[threadIdx.x];
 
-    __add_cc(A[threadIdx.x], A[threadIdx.x], cytemp);
+    __add_cc(A[thp1], A[thp1], cytemp);
   
     if (cytemp >= 0)
-      __addcy(cy[threadIdx.x]);
+      __addcy(cy[thp1]);
     else /* if (cytemp < 0) */
-      __subcy(cy[threadIdx.x]);
+      __subcy(cy[thp1]);
   }
 }
 
@@ -190,49 +190,50 @@ Cuda_Ell_DblAdd (biguint_t *xAarg, biguint_t *zAarg, biguint_t *xBarg,
 
   /* Init of shared variables */
   const unsigned int idx1=blockIdx.x*blockDim.y+threadIdx.y;
+  printf("blockIdx: %d\n", blockIdx.x);
   //unsigned int t1=threadIdx.x+1;
   cy[threadIdx.x]=0; 
 
-  w[threadIdx.x]=xBarg[idx1][threadIdx.x];
-  v[threadIdx.x]=zBarg[idx1][threadIdx.x];
-  temp_r[threadIdx.x]=xAarg[idx1][threadIdx.x];
-  u[threadIdx.x]=zAarg[idx1][threadIdx.x];
+  w[threadIdx.x]=xBarg[idx1][threadIdx.x];      // xB
+  v[threadIdx.x]=zBarg[idx1][threadIdx.x];      // zB
+  temp_r[threadIdx.x]=xAarg[idx1][threadIdx.x]; // xA
+  u[threadIdx.x]=zAarg[idx1][threadIdx.x];      // zA
 
   const digit_t Nthdx = d_Ncst[threadIdx.x]; 
   const digit_t N3thdx = d_3Ncst[threadIdx.x]; 
   const digit_t invN = d_invNcst; 
 
-  Cuda_Add_mod(t, cy, v, w);           /* C=zB+xB */
-  Cuda_Sub_mod(v, cy, w, N3thdx);      /* D=zB-xB */
+  //Cuda_Add_mod(t, cy, v, w);           /* C=zB+xB */
+  //Cuda_Sub_mod(v, cy, w, N3thdx);      /* D=zB-xB */
   Cuda_Add_mod(w, cy, u, temp_r);      /* A=zA+xA */
-  Cuda_Sub_mod(u, cy, temp_r, N3thdx); /* B=zA-xA */
+  //Cuda_Sub_mod(u, cy, temp_r, N3thdx); /* B=zA-xA */
 
-  Cuda_Mul_mod(t, cy, t, u, temp_r, Nthdx, invN); /* CB=C*B=(zB+xB)(zA-xA) */
-  Cuda_Mul_mod(v, cy, v, w, temp_r, Nthdx, invN); /* DA=D*A=(zB-xB)(zA+xA) */
+  //Cuda_Mul_mod(t, cy, t, u, temp_r, Nthdx, invN); /* CB=C*B=(zB+xB)(zA-xA) */
+  //Cuda_Mul_mod(v, cy, v, w, temp_r, Nthdx, invN); /* DA=D*A=(zB-xB)(zA+xA) */
 
-  Cuda_Square_mod(w, cy, w, temp_r, Nthdx, invN); /* AA=A^2 */
-  Cuda_Square_mod(u, cy, u, temp_r, Nthdx, invN); /* BB=B^2 */
+  //Cuda_Square_mod(w, cy, w, temp_r, Nthdx, invN); /* AA=A^2 */
+  //Cuda_Square_mod(u, cy, u, temp_r, Nthdx, invN); /* BB=B^2 */
 
-  Cuda_Mul_mod(temp_r, cy, u, w, temp_r, Nthdx, invN); /* AA*BB */
-  xAarg[idx1][threadIdx.x]=temp_r[threadIdx.x];
+  //Cuda_Mul_mod(temp_r, cy, u, w, temp_r, Nthdx, invN); /* AA*BB */
+  //xAarg[idx1][threadIdx.x]=temp_r[threadIdx.x];
 
-  Cuda_Sub_mod (w, cy, u, N3thdx); /* K= AA-BB */
-  Cuda_Mulint_mod (temp_r, cy, w, idx1 + firstinvd, Nthdx, invN); /* d*K */ 
-  Cuda_Add_mod (u, cy, temp_r); /* BB+d*K */
+  //Cuda_Sub_mod (w, cy, u, N3thdx); /* K= AA-BB */
+  //Cuda_Mulint_mod (temp_r, cy, w, idx1 + firstinvd, Nthdx, invN); /* d*K */ 
+  //Cuda_Add_mod (u, cy, temp_r); /* BB+d*K */
  
-  Cuda_Mul_mod (w, cy, w, u, temp_r, Nthdx, invN); /* K*(BB+d*K) */
+  //Cuda_Mul_mod (w, cy, w, u, temp_r, Nthdx, invN); /* K*(BB+d*K) */
   zAarg[idx1][threadIdx.x]=w[threadIdx.x];
  
-  Cuda_Add_mod(w, cy, v, t);       /* DA+CB mod N */
-  Cuda_Sub_mod(v, cy, t, N3thdx);  /* DA-CB mod N */
+  //Cuda_Add_mod(w, cy, v, t);       /* DA+CB mod N */
+  //Cuda_Sub_mod(v, cy, t, N3thdx);  /* DA-CB mod N */
 
-  Cuda_Square_mod(w, cy, w, temp_r, Nthdx, invN); /* (DA+CB)^2 mod N */
-  Cuda_Square_mod(v, cy, v, temp_r, Nthdx, invN); /* (DA-CB)^2 mod N */
+  //Cuda_Square_mod(w, cy, w, temp_r, Nthdx, invN); /* (DA+CB)^2 mod N */
+  //Cuda_Square_mod(v, cy, v, temp_r, Nthdx, invN); /* (DA-CB)^2 mod N */
 
   /* z0=1 so there is nothing to compute for z0*(DA+CB)^2 */
-  Cuda_Dbl_mod(temp_r, v); /* x0=2 x0*(DA-CB)^2 */
+  //Cuda_Dbl_mod(temp_r, v); /* x0=2 x0*(DA-CB)^2 */
   
-  xBarg[idx1][threadIdx.x]=w[threadIdx.x];
-  zBarg[idx1][threadIdx.x]=temp_r[threadIdx.x];
+  //xBarg[idx1][threadIdx.x]=w[threadIdx.x];
+  //zBarg[idx1][threadIdx.x]=temp_r[threadIdx.x];
 }
 

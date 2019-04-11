@@ -149,7 +149,7 @@ int gpu_ecm_stage1 (mpz_t *factors, int *array_stage_found, mpz_t N, mpz_t s,
   to_mont_repr (xp, N);
   to_mont_repr (zp, N);
   to_mont_repr (x2p, N);
-  
+
   /* for each curve, compute z2p and put xp, zp, x2p, z2p in the h_*array  */
   for (i = 0; i < number_of_curves; i++)
   {
@@ -180,10 +180,14 @@ int gpu_ecm_stage1 (mpz_t *factors, int *array_stage_found, mpz_t N, mpz_t s,
 
     biguint_to_mpz (xp, h_xarray[i]); 
     biguint_to_mpz (zp, h_zarray[i]); 
-    
+
     from_mont_repr (xp, N, invB);
     from_mont_repr (zp, N, invB);
-  
+
+    if (i == 0) {
+      gmp_printf("first sigma got xp:%Zd zp:%Zd\n", xp, zp);
+    }
+
     array_stage_found[i] = findfactor (factors[i], N, xp, zp);
 
     if (array_stage_found[i] != ECM_NO_FACTOR_FOUND)

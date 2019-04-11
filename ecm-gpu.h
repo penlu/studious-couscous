@@ -8,7 +8,7 @@
 #ifdef WITH_GPU
 
 #ifndef ECM_GPU_NB_DIGITS
-  #define ECM_GPU_NB_DIGITS 32 //by default
+  #define ECM_GPU_NB_DIGITS 32 //testing...
 #endif
 
 #ifndef ECM_GPU_DIGITS

@@ -124,8 +124,9 @@ select_and_init_GPU (int device, unsigned int *number_of_curves, int verbose)
   else if (*number_of_curves % ECM_GPU_CURVES_BY_BLOCK != 0)
     {
       /* number_of_curves should be a multiple of ECM_GPU_CURVES_BY_BLOCK */
-      *number_of_curves = (*number_of_curves / ECM_GPU_CURVES_BY_BLOCK + 1) * 
-                                                        ECM_GPU_CURVES_BY_BLOCK;
+      *number_of_curves = ((*number_of_curves + ECM_GPU_CURVES_BY_BLOCK - 1)
+                            / ECM_GPU_CURVES_BY_BLOCK)
+                          * ECM_GPU_CURVES_BY_BLOCK;
       if (verbose)
           fprintf(stderr, "GPU: the requested number of curves has been "
                           "modified to %u\n", *number_of_curves);
@@ -218,10 +219,13 @@ float cuda_Main (biguint_t h_N, biguint_t h_3N, biguint_t h_M, digit_t h_invN,
   /* Double-and-add loop: it calls the GPU for each bits of s */
   for (j = mpz_sizeinbase (s, 2) - 1; j>0; j-- )
   {
-    if (mpz_tstbit (s, j-1) == 1)
+    if (mpz_tstbit (s, j-1) == 1) {
+      printf("going left\n");
       Cuda_Ell_DblAdd<<<dimGrid,dimBlock>>>(d_xB, d_zB, d_xA, d_zA, firstinvd);
-    else
+    } else {
+      printf("going right\n");
       Cuda_Ell_DblAdd<<<dimGrid,dimBlock>>>(d_xA, d_zA, d_xB, d_zB, firstinvd);
+    }
 
     /* Pace entry of events. Less overhead to enter an event every few    */
     /* iterations. But, if you exceed the depth of NVIDIA's kernel queue, */
@@ -246,8 +250,8 @@ float cuda_Main (biguint_t h_N, biguint_t h_3N, biguint_t h_M, digit_t h_invN,
 #ifdef PRINT_REMAINING_ITER
     /*if (j < 100000000) jmod = 10000000;
     if (j < 10000000)  jmod =  1000000;
-    if (j < 1000000)   jmod =   100000;
-    if (j < 100000)    jmod =    10000;*/
+    if (j < 1000000)   jmod =   100000;*/
+    if (j < 100000)    jmod =    10000;
     if (j % jmod == 0)
       printf("%lu iterations to go\n", j);
 #endif
