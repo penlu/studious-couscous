@@ -220,10 +220,10 @@ float cuda_Main (biguint_t h_N, biguint_t h_3N, biguint_t h_M, digit_t h_invN,
   for (j = mpz_sizeinbase (s, 2) - 1; j>0; j-- )
   {
     if (mpz_tstbit (s, j-1) == 1) {
-      printf("going left\n");
+      //printf("going left\n");
       Cuda_Ell_DblAdd<<<dimGrid,dimBlock>>>(d_xB, d_zB, d_xA, d_zA, firstinvd);
     } else {
-      printf("going right\n");
+      //printf("going right\n");
       Cuda_Ell_DblAdd<<<dimGrid,dimBlock>>>(d_xA, d_zA, d_xB, d_zB, firstinvd);
     }
 
