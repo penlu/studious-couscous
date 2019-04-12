@@ -190,7 +190,7 @@ Cuda_Ell_DblAdd (biguint_t *xAarg, biguint_t *zAarg, biguint_t *xBarg,
 
   /* Init of shared variables */
   const unsigned int idx1=blockIdx.x*blockDim.y+threadIdx.y;
-  printf("blockIdx: %d\n", blockIdx.x);
+  //printf("idx: %d\n", idx1);
   //unsigned int t1=threadIdx.x+1;
   cy[threadIdx.x]=0; 
 
